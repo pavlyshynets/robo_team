@@ -1,3 +1,8 @@
+# ROS2 workspace/colcon files
+log
+build
+install
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
