@@ -11,6 +11,14 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(serial_communication REQUIRED)
 
+add_executable(teleop_to_serial_node src/teleop_to_serial_node.cpp)
+ament_target_dependencies(teleop_to_serial_node rclcpp geometry_msgs serial_communication)
+
+install(TARGETS
+        teleop_to_serial_node
+        DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
