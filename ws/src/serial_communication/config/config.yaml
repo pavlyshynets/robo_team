@@ -1,5 +1,0 @@
-serial_handler:
-    ros__parameters:
-          port_name: "/dev/ttyUSB0"
-                baud_rate: 115200
-                      timeout_ms: 1000
