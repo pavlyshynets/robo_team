@@ -5,7 +5,30 @@ Stack:
 - ROS2(humble)
 - Gazebo(Fortress)
 
+## How to start
+1. Install ROS2 Humble desktop and ros-dev-tools
+2. Clone this repo `git clone https://github.com/Ormared/robo-wheel-server -b ros2`
+3. Enter folder and install dependencies 
+```bash
+cd /robo-wheel-server/ws
+sudo apt install rosdep
+rosdep init
+rosdep install -i --from-path src --rosdistro humble -y
+```
+4. Build 
+```
+colcon build
+```
+5. Source and Bringup(from ws)
+```
+. install/setup.bash
+ros2 launch bringup teleop_serial_launch.py
+```
+6.(optional) Start local keyboard controlls
+```
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
+```
 ## Core folders(inside `/src`):
 
 ![core components_messy](imgs/image_messy.png)
