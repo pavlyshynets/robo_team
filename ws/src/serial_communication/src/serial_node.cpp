@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "serial_communication/msg/int8_array.hpp"  // Custom message header
+#include "serial_communication/msg/int8_array.hpp"
+#include "serial_communication/msg/wheel_speeds.hpp"  // Custom message header
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -28,8 +28,8 @@ public:
         subscription_ = this->create_subscription<serial_communication::msg::Int8Array>(
             "serial_write", 10, std::bind(&SerialNode::write_to_serial, this, std::placeholders::_1));
 
-        // Publish data from the serial port
-        publisher_ = this->create_publisher<std_msgs::msg::String>("serial_read", 10);
+        // Publisher for wheel speeds
+        wheel_speeds_publisher_ = this->create_publisher<serial_communication::msg::WheelSpeeds>("wheel_speeds", 10);
 
         // Timer to periodically check the serial port for data
         timer_ = this->create_wall_timer(
@@ -91,12 +91,19 @@ private:
     {
         if (serial_port_ < 0) return;
 
-        char buffer[256];
+        uint8_t buffer[256];
         ssize_t bytes_read = read(serial_port_, buffer, sizeof(buffer));
-        if (bytes_read > 0) {
-            auto message = std_msgs::msg::String();
-            message.data = std::string(buffer, bytes_read);
-            publisher_->publish(message);
+        if (bytes_read > 0 && bytes_read >= 20) {
+            // Parse wheel frequencies from the buffer based on specified byte positions
+            auto wheel_speeds_msg = serial_communication::msg::WheelSpeeds();
+
+            wheel_speeds_msg.wheel_a_frequency = static_cast<int16_t>(buffer[13] * 256 + buffer[14]) / 10000.0;
+            wheel_speeds_msg.wheel_b_frequency = static_cast<int16_t>(buffer[15] * 256 + buffer[16]) / 10000.0;
+            wheel_speeds_msg.wheel_c_frequency = static_cast<int16_t>(buffer[17] * 256 + buffer[18]) / 10000.0;
+            wheel_speeds_msg.wheel_d_frequency = static_cast<int16_t>(buffer[19] * 256 + buffer[20]) / 10000.0;
+
+            // Publish the wheel frequencies
+            wheel_speeds_publisher_->publish(wheel_speeds_msg);
         }
     }
 
@@ -105,7 +112,7 @@ private:
     int baud_rate_;
 
     rclcpp::Subscription<serial_communication::msg::Int8Array>::SharedPtr subscription_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+    rclcpp::Publisher<serial_communication::msg::WheelSpeeds>::SharedPtr wheel_speeds_publisher_;
     rclcpp::TimerBase::SharedPtr timer_;
 };
 

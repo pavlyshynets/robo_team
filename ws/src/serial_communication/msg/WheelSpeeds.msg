@@ -1,0 +1,5 @@
+float32 wheel_a_frequency
+float32 wheel_b_frequency
+float32 wheel_c_frequency
+float32 wheel_d_frequency
+
